@@ -186,7 +186,7 @@
 
         <div class="sub-h">Datos de cotización</div>
         <div class="row3">
-          <div class="field"><label for="quoteType">Tipo</label><input id="quoteType" value="Venta por metro cuadrado" /></div>
+          <div class="field"><label for="quoteType">Tipo</label><input id="quoteType" list="tipoList" placeholder="piso, estructural, enchape, material" /></div>
           <div class="field"><label for="ivaPct">IVA %</label><input id="ivaPct" type="number" min="0" step="0.1" value="19" /></div>
           <div class="field"><label for="currency">Moneda</label>
             <select id="currency"><option value="COP">COP</option><option value="USD">USD</option><option value="EUR">EUR</option></select>
@@ -311,7 +311,7 @@
     card.innerHTML=
       '<button class="it-remove" title="Quitar">&times;</button>'+
       '<div class="item-grid">'+
-        '<div class="field"><label>Producto</label><input class="it-product" list="prodList" placeholder="Piso, decking..."></div>'+
+        '<div class="field"><label>Producto</label><input class="it-product" list="prodList" placeholder="Piso, Tiranta…"></div>'+
         '<div class="field"><label>Especie</label><select class="it-species"><option value="">Especie…</option><option>Abarco</option><option>Comino</option><option>Roble</option></select></div>'+
         '<div class="field"><label>Acabado</label><select class="it-finish"><option value="">Especie primero…</option></select></div>'+
         '<div class="field"><label>Cant. (m²)</label><input class="it-qty" type="number" min="0" step="0.01" placeholder="0"></div>'+
@@ -364,7 +364,7 @@
   function clearForm(){
     editingId=null;
     ["clientName","clientId","clientAddress","clientPhone","project","observaciones"].forEach(function(id){$(id).value="";});
-    $("quoteType").value="Venta por metro cuadrado";$("ivaPct").value="19";$("currency").value="COP";
+    $("quoteType").value="";$("ivaPct").value="19";$("currency").value="COP";
     $("items").innerHTML="";$("items").appendChild(buildItemRow());
     $("formTitle").textContent="Nueva cotización";$("saveBtn").textContent="Guardar cotización";
     $("editBanner").classList.remove("show");recompute();
@@ -404,7 +404,7 @@
     editingId=id;var c=q.client||{};
     $("clientName").value=c.name||"";$("clientId").value=c.idnum||"";$("clientAddress").value=c.address||"";
     $("clientPhone").value=c.phone||"";$("project").value=c.project||"";
-    $("quoteType").value=q.quoteType||"Venta por metro cuadrado";$("ivaPct").value=(q.ivaPct!=null?q.ivaPct:19);$("currency").value=q.currency||"COP";
+    $("quoteType").value=q.quoteType||"";$("ivaPct").value=(q.ivaPct!=null?q.ivaPct:19);$("currency").value=q.currency||"COP";
     $("observaciones").value=q.observaciones||"";
     $("items").innerHTML="";(q.items&&q.items.length?q.items:[{}]).forEach(function(it){$("items").appendChild(buildItemRow(it));});
     $("formTitle").textContent="Editar "+quoteLabel(q.number);$("saveBtn").textContent="Actualizar cotización";
@@ -583,10 +583,10 @@
   $("searchBox").addEventListener("input",render);
   $("quoteList").addEventListener("click",function(e){var t=e.target;if(t.dataset.pdf)generatePDF(t.dataset.pdf);else if(t.dataset.edit)editQuote(t.dataset.edit);else if(t.dataset.del)deleteQuote(t.dataset.del);});
 
-  /* product datalist */
-  var dl=document.createElement("datalist");dl.id="prodList";
-  ["Piso sólido","Piso ingeniería","Laminado","Parquet","Decking","Revestimiento","Escaleras","Pieza a medida"].forEach(function(v){var o=document.createElement("option");o.value=v;dl.appendChild(o);});
-  document.body.appendChild(dl);
+  /* datalists */
+  function makeDatalist(id,values){var d=document.createElement("datalist");d.id=id;values.forEach(function(v){var o=document.createElement("option");o.value=v;d.appendChild(o);});document.body.appendChild(d);}
+  makeDatalist("prodList",["Piso","Tiranta","Cercha","Tablones","Canes","Vigas"]);
+  makeDatalist("tipoList",["piso","estructural","enchape","material"]);
 
   /* ---------- Init ---------- */
   if(!(window.jspdf&&window.jspdf.jsPDF)){$("noJsPdf").style.display="block";}
