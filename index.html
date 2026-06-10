@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maderak Wood Work — Quotes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#FAF6EF;
+    --card:#FFFDF9;
+    --ink:#2A1E15;
+    --walnut:#5C3D2E;
+    --honey:#B8732B;
+    --honey-deep:#8F5818;
+    --sand:#E8DBC7;
+    --line:#DDCBB0;
+    --muted:#8A7866;
+    --danger:#9B3A2E;
+    --ok:#4F6B3A;
+    --shadow:0 1px 2px rgba(42,30,21,.06), 0 8px 24px rgba(42,30,21,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+  /* Header */
+  header.site{
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#FFFDF9,#FAF6EF);
+  }
+  .brandbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0}
+  .mark{
+    width:44px;height:44px;border-radius:11px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%, #C8862F 0%, #8F5818 60%, #5C3D2E 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .mark::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.10) 0 2px, transparent 2px 7px);
+  }
+  .brand h1{
+    font-family:"Fraunces",Georgia,serif;
+    font-weight:600;font-size:23px;letter-spacing:.2px;margin:0;line-height:1.05;
+  }
+  .brand .sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--honey-deep);font-weight:600}
+  .settings-toggle{
+    border:1px solid var(--line);background:var(--card);color:var(--walnut);
+    padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  }
+  .settings-toggle:hover{border-color:var(--honey);color:var(--honey-deep)}
+
+  /* Company settings panel */
+  .company-panel{display:none;border-top:1px solid var(--line);background:#FFFDF9}
+  .company-panel.open{display:block}
+  .company-panel .inner{padding:18px 0 22px}
+  .company-panel h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
+
+  /* Layout */
+  main{padding:28px 0 60px}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:26px;align-items:start}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:24px;
+  }
+  .panel-title{font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:600;margin:0 0 4px}
+  .panel-sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+
+  /* Form */
+  .field{margin-bottom:16px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:520px){.row2{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--walnut);margin-bottom:6px}
+  input,select,textarea{
+    width:100%;font-family:inherit;font-size:15px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none;transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{resize:vertical;min-height:74px}
+  input:focus,select:focus,textarea:focus{border-color:var(--honey);box-shadow:0 0 0 3px rgba(184,115,43,.15)}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px}
+
+  .pricewrap{display:grid;grid-template-columns:110px 1fr;gap:10px}
+  @media (max-width:520px){.pricewrap{grid-template-columns:100px 1fr}}
+
+  .actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+  .btn{
+    font-family:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:12px 18px;cursor:pointer;border:1px solid transparent;transition:transform .05s, filter .15s, background .15s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--honey);color:#fff;box-shadow:0 2px 10px rgba(184,115,43,.3)}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-ghost{background:transparent;color:var(--walnut);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--walnut)}
+
+  /* Saved quotes */
+  .list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .search{max-width:240px}
+  .search input{padding:9px 12px;font-size:14px}
+  .count-pill{font-size:12px;font-weight:600;color:var(--honey-deep);background:rgba(184,115,43,.12);padding:4px 10px;border-radius:999px}
+
+  .quote-card{
+    border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:12px;background:#fff;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .quote-card:hover{border-color:var(--honey);box-shadow:0 4px 16px rgba(42,30,21,.07)}
+  .qc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .qc-client{font-weight:700;font-size:16px;margin:0}
+  .qc-meta{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+  .qc-num{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--honey-deep);white-space:nowrap}
+  .qc-total{font-family:"Fraunces",Georgia,serif;font-size:19px;font-weight:600;margin-top:8px}
+  .qc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tag{font-size:11.5px;background:var(--sand);color:var(--walnut);padding:3px 9px;border-radius:6px;font-weight:500}
+  .qc-actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+  .mini{font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--walnut)}
+  .mini:hover{border-color:var(--honey);color:var(--honey-deep)}
+  .mini.pdf{background:var(--walnut);color:#fff;border-color:var(--walnut)}
+  .mini.pdf:hover{filter:brightness(1.12);color:#fff}
+  .mini.del:hover{border-color:var(--danger);color:var(--danger)}
+
+  .empty{text-align:center;padding:46px 20px;color:var(--muted)}
+  .empty .ico{font-size:34px;opacity:.6}
+  .empty p{margin:10px 0 0;font-size:14px}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:50;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .editing-banner{
+    display:none;align-items:center;gap:8px;background:rgba(184,115,43,.1);border:1px solid rgba(184,115,43,.3);
+    color:var(--honey-deep);padding:9px 13px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:16px;
+  }
+  .editing-banner.show{display:flex}
+
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:0 0 40px}
+  .nojspdf{display:none;font-size:12px;color:var(--danger);margin-top:8px}
+</style>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap brandbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>Maderak Wood Work</h1>
+          <div class="sub">Quotes</div>
+        </div>
+      </div>
+      <button class="settings-toggle" id="settingsToggle">Company details</button>
+    </div>
+    <div class="company-panel" id="companyPanel">
+      <div class="wrap inner">
+        <h2>Company details — shown on every quote PDF</h2>
+        <div class="row2">
+          <div class="field">
+            <label for="coPhone">Phone</label>
+            <input id="coPhone" placeholder="+57 ..." />
+          </div>
+          <div class="field">
+            <label for="coEmail">Email</label>
+            <input id="coEmail" placeholder="contact@maderak.com" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="coAddress">Address</label>
+            <input id="coAddress" placeholder="Workshop address" />
+          </div>
+          <div class="field">
+            <label for="coTax">Tax ID / NIT</label>
+            <input id="coTax" placeholder="NIT ..." />
+          </div>
+        </div>
+        <div class="actions" style="margin-top:6px">
+          <button class="btn btn-primary" id="saveCompany">Save company details</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap grid">
+      <!-- Form -->
+      <section class="panel">
+        <h2 class="panel-title" id="formTitle">New quote</h2>
+        <p class="panel-sub">Fill in the details and save. You can download a PDF anytime.</p>
+
+        <div class="editing-banner" id="editBanner">
+          <span>Editing an existing quote.</span>
+          <button class="mini" id="cancelEdit" style="margin-left:auto">Cancel</button>
+        </div>
+
+        <div class="field">
+          <label for="clientName">Client name</label>
+          <input id="clientName" placeholder="e.g. Carlos Restrepo" />
+        </div>
+        <div class="field">
+          <label for="location">Location</label>
+          <input id="location" placeholder="e.g. El Poblado, Medellín" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="woodType">Wood type</label>
+            <input id="woodType" list="woodList" placeholder="e.g. Teak" />
+            <datalist id="woodList">
+              <option value="Teak"></option>
+              <option value="Oak"></option>
+              <option value="Walnut"></option>
+              <option value="Pine"></option>
+              <option value="Mahogany"></option>
+              <option value="Cedar"></option>
+              <option value="Bamboo"></option>
+              <option value="Cumarú"></option>
+              <option value="Roble"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="floorType">Floor type</label>
+            <input id="floorType" list="floorList" placeholder="e.g. Engineered" />
+            <datalist id="floorList">
+              <option value="Solid hardwood"></option>
+              <option value="Engineered"></option>
+              <option value="Laminate"></option>
+              <option value="Parquet"></option>
+              <option value="Decking"></option>
+              <option value="Cladding"></option>
+            </datalist>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="area">Area (m²) — optional</label>
+            <input id="area" type="number" min="0" step="0.01" placeholder="e.g. 45" />
+            <div class="hint">If set, the PDF shows price per m².</div>
+          </div>
+          <div class="field">
+            <label for="price">Total price</label>
+            <div class="pricewrap">
+              <select id="currency">
+                <option value="COP">COP</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+              <input id="price" type="number" min="0" step="0.01" placeholder="0" />
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="notes">Notes — optional</label>
+          <textarea id="notes" placeholder="Finish, delivery time, payment terms..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="saveBtn">Save quote</button>
+          <button class="btn btn-ghost" id="clearBtn">Clear form</button>
+        </div>
+        <div class="nojspdf" id="noJsPdf">PDF library couldn't load (no internet). Quotes still save; download will work once online.</div>
+      </section>
+
+      <!-- Saved quotes -->
+      <section class="panel">
+        <div class="list-head">
+          <div>
+            <h2 class="panel-title" style="margin-bottom:2px">Saved quotes</h2>
+            <span class="count-pill" id="countPill">0 quotes</span>
+          </div>
+          <div class="search field" style="margin:0">
+            <input id="searchBox" placeholder="Search client or wood..." />
+          </div>
+        </div>
+        <div id="quoteList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="wrap">Maderak Wood Work · Quotes are saved in this browser.</footer>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Storage (localStorage with in-memory fallback) ---------- */
+  var QKEY = "maderak_quotes_v1";
+  var CKEY = "maderak_counter_v1";
+  var COKEY = "maderak_company_v1";
+  var mem = {}; // fallback store
+  function rawGet(k){
+    try { var v = window.localStorage.getItem(k); return v === null ? (k in mem ? mem[k] : null) : v; }
+    catch(e){ return (k in mem) ? mem[k] : null; }
+  }
+  function rawSet(k,v){
+    mem[k] = v;
+    try { window.localStorage.setItem(k,v); } catch(e){ /* private mode / artifact: keep in memory */ }
+  }
+
+  function loadQuotes(){
+    var raw = rawGet(QKEY);
+    if(!raw) return [];
+    try { var arr = JSON.parse(raw); return Array.isArray(arr) ? arr : []; }
+    catch(e){ return []; }
+  }
+  function saveQuotes(arr){ rawSet(QKEY, JSON.stringify(arr)); }
+  function nextNumber(){
+    var n = parseInt(rawGet(CKEY) || "0", 10) || 0;
+    n += 1; rawSet(CKEY, String(n)); return n;
+  }
+  function loadCompany(){
+    var raw = rawGet(COKEY);
+    if(!raw) return {phone:"",email:"",address:"",tax:""};
+    try { return JSON.parse(raw); } catch(e){ return {phone:"",email:"",address:"",tax:""}; }
+  }
+  function saveCompany(c){ rawSet(COKEY, JSON.stringify(c)); }
+
+  /* ---------- State ---------- */
+  var quotes = loadQuotes();
+  var company = loadCompany();
+  var editingId = null;
+
+  /* ---------- Elements ---------- */
+  var $ = function(id){ return document.getElementById(id); };
+  var els = {
+    clientName:$("clientName"), location:$("location"), woodType:$("woodType"),
+    floorType:$("floorType"), area:$("area"), price:$("price"), currency:$("currency"),
+    notes:$("notes"), saveBtn:$("saveBtn"), clearBtn:$("clearBtn"),
+    list:$("quoteList"), count:$("countPill"), search:$("searchBox"),
+    formTitle:$("formTitle"), editBanner:$("editBanner"), cancelEdit:$("cancelEdit"),
+    toast:$("toast"), settingsToggle:$("settingsToggle"), companyPanel:$("companyPanel"),
+    coPhone:$("coPhone"), coEmail:$("coEmail"), coAddress:$("coAddress"), coTax:$("coTax"),
+    saveCompanyBtn:$("saveCompany"), noJsPdf:$("noJsPdf")
+  };
+
+  /* ---------- Helpers ---------- */
+  function pad(n){ return ("0000" + n).slice(-4); }
+  function quoteLabel(num){ return "MWW-" + pad(num); }
+
+  function formatMoney(amount, currency){
+    var n = Number(amount) || 0;
+    var decimals = currency === "COP" ? 0 : 2;
+    var parts = n.toFixed(decimals).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    var num = parts.join(",");
+    var symbol = currency === "USD" ? "US$ " : currency === "EUR" ? "€ " : "$ ";
+    return symbol + num;
+  }
+  function formatDate(iso){
+    var d = new Date(iso);
+    if(isNaN(d)) return iso;
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+  }
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function toast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add("show");
+    clearTimeout(els.toast._t);
+    els.toast._t = setTimeout(function(){ els.toast.classList.remove("show"); }, 2400);
+  }
+
+  /* ---------- Form ---------- */
+  function clearForm(){
+    editingId = null;
+    els.clientName.value = ""; els.location.value = ""; els.woodType.value = "";
+    els.floorType.value = ""; els.area.value = ""; els.price.value = "";
+    els.notes.value = "";
+    els.formTitle.textContent = "New quote";
+    els.saveBtn.textContent = "Save quote";
+    els.editBanner.classList.remove("show");
+  }
+
+  function readForm(){
+    return {
+      clientName: els.clientName.value.trim(),
+      location: els.location.value.trim(),
+      woodType: els.woodType.value.trim(),
+      floorType: els.floorType.value.trim(),
+      area: els.area.value.trim(),
+      price: parseFloat(els.price.value) || 0,
+      currency: els.currency.value,
+      notes: els.notes.value.trim()
+    };
+  }
+
+  function validate(d){
+    if(!d.clientName){ toast("Add a client name."); els.clientName.focus(); return false; }
+    if(!d.location){ toast("Add a location."); els.location.focus(); return false; }
+    if(!d.woodType){ toast("Add a wood type."); els.woodType.focus(); return false; }
+    if(!d.floorType){ toast("Add a floor type."); els.floorType.focus(); return false; }
+    if(!(d.price > 0)){ toast("Add a price greater than 0."); els.price.focus(); return false; }
+    return true;
+  }
+
+  function onSave(){
+    var d = readForm();
+    if(!validate(d)) return;
+
+    if(editingId){
+      for(var i=0;i<quotes.length;i++){
+        if(quotes[i].id === editingId){
+          d.id = quotes[i].id; d.number = quotes[i].number; d.date = quotes[i].date;
+          quotes[i] = d; break;
+        }
+      }
+      toast("Quote " + quoteLabel(d.number) + " updated.");
+    } else {
+      d.id = "q_" + Date.now() + "_" + Math.random().toString(36).slice(2,7);
+      d.number = nextNumber();
+      d.date = new Date().toISOString();
+      quotes.unshift(d);
+      toast("Quote " + quoteLabel(d.number) + " saved.");
+    }
+    saveQuotes(quotes);
+    clearForm();
+    render();
+  }
+
+  function editQuote(id){
+    var q = quotes.filter(function(x){ return x.id === id; })[0];
+    if(!q) return;
+    editingId = id;
+    els.clientName.value = q.clientName || "";
+    els.location.value = q.location || "";
+    els.woodType.value = q.woodType || "";
+    els.floorType.value = q.floorType || "";
+    els.area.value = q.area || "";
+    els.price.value = q.price || "";
+    els.currency.value = q.currency || "COP";
+    els.notes.value = q.notes || "";
+    els.formTitle.textContent = "Edit " + quoteLabel(q.number);
+    els.saveBtn.textContent = "Update quote";
+    els.editBanner.classList.add("show");
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function deleteQuote(id){
+    var q = quotes.filter(function(x){ return x.id === id; })[0];
+    if(!q) return;
+    if(!window.confirm("Delete quote " + quoteLabel(q.number) + " for " + q.clientName + "?")) return;
+    quotes = quotes.filter(function(x){ return x.id !== id; });
+    saveQuotes(quotes);
+    if(editingId === id) clearForm();
+    render();
+    toast("Quote deleted.");
+  }
+
+  /* ---------- Render list ---------- */
+  function render(){
+    var term = (els.search.value || "").toLowerCase().trim();
+    var filtered = quotes.filter(function(q){
+      if(!term) return true;
+      return (q.clientName + " " + q.woodType + " " + q.floorType + " " + q.location)
+        .toLowerCase().indexOf(term) !== -1;
+    });
+
+    els.count.textContent = quotes.length + (quotes.length === 1 ? " quote" : " quotes");
+
+    if(filtered.length === 0){
+      els.list.innerHTML = '<div class="empty"><div class="ico">🪵</div><p>' +
+        (quotes.length === 0 ? "No quotes yet. Create your first one on the left." : "No quotes match your search.") +
+        '</p></div>';
+      return;
+    }
+
+    var html = "";
+    filtered.forEach(function(q){
+      var total = formatMoney(q.price, q.currency);
+      html += '<div class="quote-card">' +
+        '<div class="qc-top">' +
+          '<div><p class="qc-client">' + escapeHtml(q.clientName) + '</p>' +
+          '<p class="qc-meta">' + escapeHtml(q.location) + ' · ' + formatDate(q.date) + '</p></div>' +
+          '<span class="qc-num">' + quoteLabel(q.number) + '</span>' +
+        '</div>' +
+        '<div class="qc-total">' + total + '</div>' +
+        '<div class="qc-tags">' +
+          '<span class="tag">' + escapeHtml(q.woodType) + '</span>' +
+          '<span class="tag">' + escapeHtml(q.floorType) + '</span>' +
+          (q.area ? '<span class="tag">' + escapeHtml(q.area) + ' m²</span>' : '') +
+        '</div>' +
+        '<div class="qc-actions">' +
+          '<button class="mini pdf" data-pdf="' + q.id + '">Download PDF</button>' +
+          '<button class="mini" data-edit="' + q.id + '">Edit</button>' +
+          '<button class="mini del" data-del="' + q.id + '">Delete</button>' +
+        '</div>' +
+      '</div>';
+    });
+    els.list.innerHTML = html;
+  }
+
+  /* ---------- PDF ---------- */
+  function generatePDF(id){
+    var q = quotes.filter(function(x){ return x.id === id; })[0];
+    if(!q) return;
+    if(!(window.jspdf && window.jspdf.jsPDF)){
+      toast("PDF library not loaded. Connect to the internet and try again.");
+      return;
+    }
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({unit:"pt", format:"a4"});
+    var W = doc.internal.pageSize.getWidth();
+    var M = 48;                 // margin
+    var honey = [184,115,43];
+    var ink = [42,30,21];
+    var walnut = [92,61,46];
+    var muted = [138,120,102];
+    var line = [221,203,176];
+
+    // Top accent bar
+    doc.setFillColor(honey[0],honey[1],honey[2]);
+    doc.rect(0,0,W,8,"F");
+
+    // Brand
+    doc.setTextColor(ink[0],ink[1],ink[2]);
+    doc.setFont("times","bold");
+    doc.setFontSize(24);
+    doc.text("Maderak Wood Work", M, 70);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(8.5);
+    doc.setTextColor(honey[0],honey[1],honey[2]);
+    doc.text("F I N E   W O O D   F L O O R S", M, 86);
+
+    // Company contact (right aligned)
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(9);
+    doc.setTextColor(muted[0],muted[1],muted[2]);
+    var cy = 58;
+    var contact = [];
+    if(company.phone) contact.push(company.phone);
+    if(company.email) contact.push(company.email);
+    if(company.address) contact.push(company.address);
+    if(company.tax) contact.push(company.tax);
+    contact.forEach(function(l){ doc.text(l, W - M, cy, {align:"right"}); cy += 13; });
+
+    // Quote title block
+    var topY = 122;
+    doc.setDrawColor(line[0],line[1],line[2]);
+    doc.setLineWidth(1);
+    doc.line(M, topY, W - M, topY);
+
+    doc.setFont("times","bold");
+    doc.setFontSize(16);
+    doc.setTextColor(ink[0],ink[1],ink[2]);
+    doc.text("QUOTE", M, topY + 30);
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(10);
+    doc.setTextColor(muted[0],muted[1],muted[2]);
+    doc.text("Number", W - M - 150, topY + 22);
+    doc.text("Date", W - M - 150, topY + 40);
+    doc.setTextColor(ink[0],ink[1],ink[2]);
+    doc.setFont("helvetica","bold");
+    doc.text(quoteLabel(q.number), W - M, topY + 22, {align:"right"});
+    doc.text(formatDate(q.date), W - M, topY + 40, {align:"right"});
+
+    // Prepared for
+    var py = topY + 70;
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(9);
+    doc.setTextColor(muted[0],muted[1],muted[2]);
+    doc.text("PREPARED FOR", M, py);
+    doc.setFont("times","bold");
+    doc.setFontSize(14);
+    doc.setTextColor(ink[0],ink[1],ink[2]);
+    doc.text(q.clientName, M, py + 20);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(10.5);
+    doc.setTextColor(walnut[0],walnut[1],walnut[2]);
+    doc.text(q.location, M, py + 37);
+
+    // Details table
+    var ty = py + 72;
+    doc.setFillColor(walnut[0],walnut[1],walnut[2]);
+    doc.rect(M, ty, W - 2*M, 26, "F");
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(9.5);
+    doc.setTextColor(255,255,255);
+    doc.text("DESCRIPTION", M + 14, ty + 17);
+    doc.text("DETAIL", W - M - 14, ty + 17, {align:"right"});
+
+    var rows = [
+      ["Wood type", q.woodType],
+      ["Floor type", q.floorType]
+    ];
+    if(q.area && Number(q.area) > 0){
+      rows.push(["Area", Number(q.area) + " m²"]);
+      rows.push(["Price per m²", formatMoney(q.price / Number(q.area), q.currency)]);
+    }
+
+    var ry = ty + 26;
+    doc.setFontSize(11);
+    rows.forEach(function(r, i){
+      if(i % 2 === 1){ doc.setFillColor(250,246,239); doc.rect(M, ry, W - 2*M, 28, "F"); }
+      doc.setFont("helvetica","normal");
+      doc.setTextColor(muted[0],muted[1],muted[2]);
+      doc.text(r[0], M + 14, ry + 18);
+      doc.setFont("helvetica","bold");
+      doc.setTextColor(ink[0],ink[1],ink[2]);
+      doc.text(String(r[1]), W - M - 14, ry + 18, {align:"right"});
+      ry += 28;
+    });
+
+    // Total box
+    ry += 14;
+    doc.setFillColor(honey[0],honey[1],honey[2]);
+    doc.rect(M, ry, W - 2*M, 44, "F");
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(10);
+    doc.setTextColor(255,255,255);
+    doc.text("TOTAL", M + 16, ry + 27);
+    doc.setFont("times","bold");
+    doc.setFontSize(18);
+    doc.text(formatMoney(q.price, q.currency) + "  " + q.currency, W - M - 16, ry + 29, {align:"right"});
+    ry += 44;
+
+    // Notes
+    if(q.notes){
+      ry += 26;
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(9);
+      doc.setTextColor(muted[0],muted[1],muted[2]);
+      doc.text("NOTES", M, ry);
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10.5);
+      doc.setTextColor(walnut[0],walnut[1],walnut[2]);
+      var wrapped = doc.splitTextToSize(q.notes, W - 2*M);
+      doc.text(wrapped, M, ry + 16);
+      ry += 16 + wrapped.length * 14;
+    }
+
+    // Footer
+    var H = doc.internal.pageSize.getHeight();
+    doc.setDrawColor(line[0],line[1],line[2]);
+    doc.line(M, H - 60, W - M, H - 60);
+    doc.setFont("times","italic");
+    doc.setFontSize(11);
+    doc.setTextColor(walnut[0],walnut[1],walnut[2]);
+    doc.text("Thank you for considering Maderak Wood Work.", M, H - 40);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(muted[0],muted[1],muted[2]);
+    doc.text("This quote is valid for 30 days from the date above.", M, H - 26);
+
+    doc.save("Maderak-" + quoteLabel(q.number) + "-" + q.clientName.replace(/[^a-z0-9]+/gi,"-") + ".pdf");
+    toast("PDF downloaded.");
+  }
+
+  /* ---------- Company panel ---------- */
+  function loadCompanyForm(){
+    els.coPhone.value = company.phone || "";
+    els.coEmail.value = company.email || "";
+    els.coAddress.value = company.address || "";
+    els.coTax.value = company.tax || "";
+  }
+  els.settingsToggle.addEventListener("click", function(){
+    els.companyPanel.classList.toggle("open");
+  });
+  els.saveCompanyBtn.addEventListener("click", function(){
+    company = {
+      phone: els.coPhone.value.trim(), email: els.coEmail.value.trim(),
+      address: els.coAddress.value.trim(), tax: els.coTax.value.trim()
+    };
+    saveCompany(company);
+    els.companyPanel.classList.remove("open");
+    toast("Company details saved.");
+  });
+
+  /* ---------- Events ---------- */
+  els.saveBtn.addEventListener("click", onSave);
+  els.clearBtn.addEventListener("click", clearForm);
+  els.cancelEdit.addEventListener("click", clearForm);
+  els.search.addEventListener("input", render);
+  els.list.addEventListener("click", function(e){
+    var t = e.target;
+    if(t.dataset.pdf) generatePDF(t.dataset.pdf);
+    else if(t.dataset.edit) editQuote(t.dataset.edit);
+    else if(t.dataset.del) deleteQuote(t.dataset.del);
+  });
+
+  // Enter key on price submits
+  els.price.addEventListener("keydown", function(e){ if(e.key === "Enter") onSave(); });
+
+  /* ---------- Init ---------- */
+  if(!(window.jspdf && window.jspdf.jsPDF)){ els.noJsPdf.style.display = "block"; }
+  loadCompanyForm();
+  render();
+})();
+</script>
+</body>
+</html>
