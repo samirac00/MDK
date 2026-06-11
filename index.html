@@ -46,6 +46,14 @@
   .company-panel .inner{padding:18px 0 22px}
   .company-panel h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
 
+  .tabs{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+  .tab{font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;padding:11px 18px;cursor:pointer;margin-bottom:-1px}
+  .tab:hover{color:var(--walnut)}
+  .tab.active{color:var(--bark);border-bottom-color:var(--honey)}
+  .tabpane{display:none}
+  .tabpane.active{display:block}
+  .prod-specs{font-size:12.5px;color:var(--walnut);margin-top:10px;line-height:1.7}
+  .prod-specs b{color:var(--bark);font-weight:600}
   main{padding:26px 0 60px}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
   .panel-title{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;margin:0 0 4px}
@@ -162,7 +170,12 @@
   </header>
 
   <main>
+    <nav class="tabs wrap">
+      <button class="tab active" data-tab="cotizaciones" type="button">Cotizaciones</button>
+      <button class="tab" data-tab="produccion" type="button">Producción</button>
+    </nav>
     <div class="wrap">
+      <div id="tab-cotizaciones" class="tabpane active">
       <!-- Form -->
       <section class="panel">
         <h2 class="panel-title" id="formTitle">Nueva cotización</h2>
@@ -222,6 +235,69 @@
         </div>
         <div class="qgrid" id="quoteList"></div>
       </section>
+      </div><!-- /tab-cotizaciones -->
+
+      <div id="tab-produccion" class="tabpane">
+        <section class="panel">
+          <h2 class="panel-title" id="pFormTitle">Nuevo producto de producción</h2>
+          <p class="panel-sub">Elige la madera y el acabado, define las medidas y el paso a paso en planta.</p>
+
+          <div class="editing-banner" id="pEditBanner">
+            <span>Editando un producto de producción.</span>
+            <button class="mini" id="pCancelEdit" style="margin-left:auto">Cancelar</button>
+          </div>
+
+          <div class="sub-h">Madera y producto</div>
+          <div class="row3">
+            <div class="field"><label for="pSpecies">Especie</label>
+              <select id="pSpecies"><option value="">Especie…</option><option>Abarco</option><option>Comino</option><option>Roble</option></select>
+              <div class="hint" id="pSpeciesNote"></div>
+            </div>
+            <div class="field"><label for="pFinish">Acabado</label>
+              <select id="pFinish"><option value="">Especie primero…</option></select>
+            </div>
+            <div class="field"><label for="pProduct">Producto</label>
+              <input id="pProduct" list="prodList" placeholder="Piso, Tiranta…">
+            </div>
+          </div>
+          <div class="field"><label for="pReference">Referencia / nombre (opcional)</label><input id="pReference" placeholder="p. ej. Piso Abarco Caoba 12 cm"></div>
+
+          <div class="sub-h">Paso 1 · Dimensiones</div>
+          <div class="row3">
+            <div class="field"><label for="pAncho">Ancho</label><input id="pAncho" type="number" min="0" step="0.1" placeholder="0"></div>
+            <div class="field"><label for="pLargo">Largo</label><input id="pLargo" type="number" min="0" step="0.1" placeholder="0"></div>
+            <div class="field"><label for="pEspesor">Espesor / medida</label><input id="pEspesor" type="number" min="0" step="0.1" placeholder="0"></div>
+          </div>
+          <div class="field" style="max-width:220px"><label for="pUnidad">Unidad de medida</label>
+            <select id="pUnidad"><option value="cm">cm</option><option value="mm">mm</option><option value="m">m</option><option value="pulg">pulg</option></select>
+          </div>
+
+          <div class="sub-h">Paso 2 · Cepillado</div>
+          <div class="row2">
+            <div class="field"><label for="pCepillo">Parámetros del cepillo</label><input id="pCepillo" placeholder="p. ej. calibre 2 mm, velocidad media"></div>
+            <div class="field"><label for="pPasos">N.º de pasos por el cepillo</label><input id="pPasos" type="number" min="0" step="1" placeholder="0"></div>
+          </div>
+
+          <div class="sub-h">Paso 3 · Acabado / Recubrimiento</div>
+          <div class="field"><label for="pRecubrimiento">Tipo de cera o recubrimiento</label><input id="pRecubrimiento" list="recubList" placeholder="p. ej. Cera natural"></div>
+
+          <div class="sub-h">Notas</div>
+          <div class="field"><textarea id="pNotas" placeholder="Observaciones del proceso en planta..."></textarea></div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="pSaveBtn">Guardar producto</button>
+            <button class="btn btn-ghost" id="pClearBtn">Limpiar</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="list-head">
+            <div><h2 class="panel-title" style="margin-bottom:2px">Productos en producción</h2><span class="count-pill" id="pCount">0</span></div>
+            <div class="search field" style="margin:0"><input id="pSearch" placeholder="Buscar producto, madera o acabado..."></div>
+          </div>
+          <div class="qgrid" id="pList"></div>
+        </section>
+      </div><!-- /tab-produccion -->
     </div>
   </main>
 
@@ -236,11 +312,11 @@
   /* ---------- Wood palette ---------- */
   var WOODS={
     Abarco:{latin:"Cariniana pyriformis",character:"Veta rosada · Cálida",finishes:[
-      {name:"Incoloro",code:"ABR · 00"},{name:"Arcilla",code:"ABR · 01"},{name:"Caoba",code:"ABR · 02"},{name:"Cobre Quemado",code:"ABR · 03"}]},
+      {name:"Rústico",code:"ABR · 00"},{name:"Arcilla",code:"ABR · 01"},{name:"Caoba",code:"ABR · 02"},{name:"Cobre Quemado",code:"ABR · 03"}]},
     Comino:{latin:"Aniba perutilis",character:"Vetas doradas · Fino",finishes:[
-      {name:"Incoloro",code:"CMN · 00"},{name:"Miel",code:"CMN · 01"},{name:"Ámbar",code:"CMN · 02"},{name:"Tabaco",code:"CMN · 03"}]},
+      {name:"Rústico",code:"CMN · 00"},{name:"Miel",code:"CMN · 01"},{name:"Ámbar",code:"CMN · 02"},{name:"Tabaco",code:"CMN · 03"}]},
     Roble:{latin:"Quercus humboldtii",character:"Grano abierto · Fuerte",finishes:[
-      {name:"Incoloro",code:"RBL · 00"},{name:"Avellana",code:"RBL · 01"},{name:"Nogal",code:"RBL · 02"},{name:"Ébano",code:"RBL · 03"}]}
+      {name:"Rústico",code:"RBL · 00"},{name:"Avellana",code:"RBL · 01"},{name:"Nogal",code:"RBL · 02"},{name:"Ébano",code:"RBL · 03"}]}
   };
 
   /* ---------- Standard commercial terms (from the Maderak template) ---------- */
@@ -587,10 +663,109 @@
   function makeDatalist(id,values){var d=document.createElement("datalist");d.id=id;values.forEach(function(v){var o=document.createElement("option");o.value=v;d.appendChild(o);});document.body.appendChild(d);}
   makeDatalist("prodList",["Piso","Tiranta","Cercha","Tablones","Canes","Vigas"]);
   makeDatalist("tipoList",["piso","estructural","enchape","material"]);
+  makeDatalist("recubList",["Cera natural","Cera de abejas","Aceite de teca","Aceite de tung","Laca","Barniz PU","Sellador","Sin recubrimiento"]);
+
+  /* ---------- Tabs ---------- */
+  function switchTab(name){
+    document.querySelectorAll(".tab").forEach(function(b){b.classList.toggle("active",b.getAttribute("data-tab")===name);});
+    document.querySelectorAll(".tabpane").forEach(function(p){p.classList.toggle("active",p.id==="tab-"+name);});
+  }
+  document.querySelectorAll(".tab").forEach(function(btn){btn.addEventListener("click",function(){switchTab(btn.getAttribute("data-tab"));});});
+
+  /* ---------- Producción ---------- */
+  var PKEY="maderak_production_v1",PCKEY="maderak_prodcounter_v1";
+  function loadProd(){var r=rawGet(PKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function saveProdList(a){rawSet(PKEY,JSON.stringify(a));}
+  function prodNext(){var n=parseInt(rawGet(PCKEY)||"0",10)||0;n+=1;rawSet(PCKEY,String(n));return n;}
+  function prodLabel(n){return "PRD-"+pad(n);}
+  var production=loadProd(),editingProdId=null;
+
+  function updateProdNote(){var w=WOODS[$("pSpecies").value];$("pSpeciesNote").innerHTML=w?('<b>'+esc(w.latin)+'</b> · '+esc(w.character)):'';}
+  $("pSpecies").addEventListener("change",function(){fillFinish($("pFinish"),$("pSpecies").value,"");updateProdNote();});
+
+  function clearProdForm(){
+    editingProdId=null;
+    ["pReference","pAncho","pLargo","pEspesor","pCepillo","pPasos","pRecubrimiento","pNotas","pProduct"].forEach(function(id){$(id).value="";});
+    $("pSpecies").value="";fillFinish($("pFinish"),"","");$("pUnidad").value="cm";updateProdNote();
+    $("pFormTitle").textContent="Nuevo producto de producción";$("pSaveBtn").textContent="Guardar producto";
+    $("pEditBanner").classList.remove("show");
+  }
+  function readProdForm(){
+    var fo=$("pFinish"),opt=fo.options[fo.selectedIndex];
+    return {
+      species:$("pSpecies").value,finish:fo.value,finishCode:(opt?opt.getAttribute("data-code"):"")||"",
+      product:$("pProduct").value.trim(),reference:$("pReference").value.trim(),
+      ancho:$("pAncho").value.trim(),largo:$("pLargo").value.trim(),espesor:$("pEspesor").value.trim(),unidad:$("pUnidad").value,
+      cepillo:$("pCepillo").value.trim(),pasos:$("pPasos").value.trim(),
+      recubrimiento:$("pRecubrimiento").value.trim(),notas:$("pNotas").value.trim()
+    };
+  }
+  function onSaveProd(){
+    var d=readProdForm();
+    if(!d.species){toast("Elige la especie.");$("pSpecies").focus();return;}
+    if(!d.finish){toast("Elige el acabado.");$("pFinish").focus();return;}
+    if(!d.product){toast("Indica el producto.");$("pProduct").focus();return;}
+    if(editingProdId){
+      for(var i=0;i<production.length;i++){if(production[i].id===editingProdId){d.id=production[i].id;d.number=production[i].number;d.date=production[i].date;production[i]=d;break;}}
+      toast("Producto "+prodLabel(d.number)+" actualizado.");
+    }else{
+      d.id="p_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);d.number=prodNext();d.date=new Date().toISOString();production.unshift(d);
+      toast("Producto "+prodLabel(d.number)+" guardado.");
+    }
+    saveProdList(production);clearProdForm();renderProd();
+  }
+  function editProd(id){
+    var p=production.filter(function(x){return x.id===id;})[0];if(!p)return;
+    editingProdId=id;
+    $("pSpecies").value=p.species||"";fillFinish($("pFinish"),p.species||"",p.finish||"");updateProdNote();
+    $("pProduct").value=p.product||"";$("pReference").value=p.reference||"";
+    $("pAncho").value=p.ancho||"";$("pLargo").value=p.largo||"";$("pEspesor").value=p.espesor||"";$("pUnidad").value=p.unidad||"cm";
+    $("pCepillo").value=p.cepillo||"";$("pPasos").value=p.pasos||"";$("pRecubrimiento").value=p.recubrimiento||"";$("pNotas").value=p.notas||"";
+    $("pFormTitle").textContent="Editar "+prodLabel(p.number);$("pSaveBtn").textContent="Actualizar producto";
+    $("pEditBanner").classList.add("show");switchTab("produccion");window.scrollTo({top:0,behavior:"smooth"});
+  }
+  function deleteProd(id){
+    var p=production.filter(function(x){return x.id===id;})[0];if(!p)return;
+    if(!window.confirm("¿Eliminar el producto "+prodLabel(p.number)+"?"))return;
+    production=production.filter(function(x){return x.id!==id;});saveProdList(production);
+    if(editingProdId===id)clearProdForm();renderProd();toast("Producto eliminado.");
+  }
+  function prodDims(p){var parts=[p.ancho,p.largo,p.espesor].filter(function(v){return v!==""&&v!=null;});return parts.length?parts.join(" × ")+" "+(p.unidad||""):"—";}
+  function renderProd(){
+    var term=($("pSearch").value||"").toLowerCase().trim();
+    var filtered=production.filter(function(p){if(!term)return true;return ((p.product||"")+" "+(p.reference||"")+" "+(p.species||"")+" "+(p.finish||"")).toLowerCase().indexOf(term)!==-1;});
+    $("pCount").textContent=production.length;
+    if(filtered.length===0){$("pList").innerHTML='<div class="empty"><img src="'+MARK+'" alt=""><p>'+(production.length===0?"Aún no hay productos. Crea el primero arriba.":"Ningún producto coincide con la búsqueda.")+'</p></div>';return;}
+    var html="";
+    filtered.forEach(function(p){
+      html+='<div class="quote-card"><div class="qc-top">'+
+        '<div><p class="qc-client">'+esc(p.product)+(p.reference?' · '+esc(p.reference):'')+'</p>'+
+        '<p class="qc-meta">'+esc(p.species)+' · '+esc(p.finish)+' · '+fmtDate(p.date)+'</p></div>'+
+        '<span class="qc-num">'+prodLabel(p.number)+'</span></div>'+
+        '<div class="qc-tags"><span class="tag">'+esc(p.species)+'</span>'+
+          '<span class="tag">'+esc(p.finish)+(p.finishCode?' ('+esc(p.finishCode)+')':'')+'</span></div>'+
+        '<div class="prod-specs">'+
+          '<div><b>Dimensiones:</b> '+esc(prodDims(p))+'</div>'+
+          '<div><b>Cepillo:</b> '+(p.pasos?esc(p.pasos)+' pasos':'—')+(p.cepillo?' · '+esc(p.cepillo):'')+'</div>'+
+          '<div><b>Recubrimiento:</b> '+esc(p.recubrimiento||'—')+'</div>'+
+          (p.notas?'<div><b>Notas:</b> '+esc(p.notas)+'</div>':'')+
+        '</div>'+
+        '<div class="qc-actions">'+
+          '<button class="mini" data-pedit="'+p.id+'">Editar</button>'+
+          '<button class="mini del" data-pdel="'+p.id+'">Eliminar</button>'+
+        '</div></div>';
+    });
+    $("pList").innerHTML=html;
+  }
+  $("pSaveBtn").addEventListener("click",onSaveProd);
+  $("pClearBtn").addEventListener("click",clearProdForm);
+  $("pCancelEdit").addEventListener("click",clearProdForm);
+  $("pSearch").addEventListener("input",renderProd);
+  $("pList").addEventListener("click",function(e){var t=e.target;if(t.dataset.pedit)editProd(t.dataset.pedit);else if(t.dataset.pdel)deleteProd(t.dataset.pdel);});
 
   /* ---------- Init ---------- */
   if(!(window.jspdf&&window.jspdf.jsPDF)){$("noJsPdf").style.display="block";}
-  loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();
+  loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();renderProd();
 })();
 </script>
 </body>
