@@ -210,6 +210,7 @@
       <button class="tab active" data-tab="cotizaciones" type="button">Cotizaciones</button>
       <button class="tab" data-tab="produccion" type="button">Producción</button>
       <button class="tab" data-tab="tesoreria" type="button">Tesorería</button>
+      <button class="tab" data-tab="inventario" type="button">Inventario</button>
     </nav>
     <div class="wrap">
       <div id="tab-cotizaciones" class="tabpane active">
@@ -370,6 +371,91 @@
           <div id="eList"></div>
         </section>
       </div><!-- /tab-tesoreria -->
+
+      <div id="tab-inventario" class="tabpane">
+
+        <!-- KPIs -->
+        <section class="panel">
+          <h2 class="panel-title" style="margin-bottom:2px">Inventario en stock</h2>
+          <p class="panel-sub">Lleva el control de las cantidades disponibles de cada producto en bodega.</p>
+          <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+            <div class="kpi"><div class="l">Total referencias</div><div class="v" id="iKpiTotal">0</div></div>
+            <div class="kpi"><div class="l">Stock bajo ⚠️</div><div class="v neg" id="iKpiLow">0</div></div>
+            <div class="kpi"><div class="l">Sin stock 🚫</div><div class="v neg" id="iKpiZero">0</div></div>
+          </div>
+        </section>
+
+        <!-- Form -->
+        <section class="panel">
+          <h2 class="panel-title" id="iFormTitle">Agregar producto al inventario</h2>
+          <p class="panel-sub">Registra la cantidad disponible de un producto en bodega.</p>
+
+          <div class="editing-banner" id="iEditBanner">
+            <span>Editando un ítem del inventario.</span>
+            <button class="mini" id="iCancelEdit" style="margin-left:auto">Cancelar</button>
+          </div>
+
+          <div class="sub-h">Producto</div>
+          <div class="row3">
+            <div class="field"><label for="iSpecies">Especie</label>
+              <select id="iSpecies"><option value="">Especie…</option><option>Abarco</option><option>Comino</option><option>Roble</option></select>
+            </div>
+            <div class="field"><label for="iFinish">Acabado</label>
+              <select id="iFinish"><option value="">Especie primero…</option></select>
+            </div>
+            <div class="field"><label for="iProduct">Producto</label>
+              <input id="iProduct" list="prodList" placeholder="Piso, Tiranta…">
+            </div>
+          </div>
+          <div class="field"><label for="iReference">Referencia (opcional)</label>
+            <input id="iReference" placeholder="p. ej. Piso Abarco Caoba 12 cm">
+          </div>
+
+          <div class="sub-h">Cantidad en stock</div>
+          <div class="row3">
+            <div class="field"><label for="iQty">Cantidad</label>
+              <input id="iQty" type="number" min="0" step="0.01" placeholder="0">
+            </div>
+            <div class="field"><label for="iUnit">Unidad</label>
+              <select id="iUnit">
+                <option value="m²">m²</option>
+                <option value="unidades">Unidades</option>
+                <option value="ml">ml (metro lineal)</option>
+                <option value="kg">kg</option>
+                <option value="tablas">Tablas</option>
+              </select>
+            </div>
+            <div class="field"><label for="iMinQty">Stock mínimo (alerta)</label>
+              <input id="iMinQty" type="number" min="0" step="0.01" placeholder="0">
+              <div class="hint">Se marcará como stock bajo si cae por debajo de este valor.</div>
+            </div>
+          </div>
+          <div class="field"><label for="iLocation">Ubicación en bodega (opcional)</label>
+            <input id="iLocation" placeholder="p. ej. Estante A3, Sección piso">
+          </div>
+          <div class="field"><label for="iNotes">Notas (opcional)</label>
+            <textarea id="iNotes" placeholder="Observaciones sobre este ítem…"></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="iSaveBtn">Guardar en inventario</button>
+            <button class="btn btn-ghost" id="iClearBtn">Limpiar</button>
+          </div>
+        </section>
+
+        <!-- List -->
+        <section class="panel">
+          <div class="list-head">
+            <div><h2 class="panel-title" style="margin-bottom:2px">Stock actual</h2><span class="count-pill" id="iCount">0</span></div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <div class="search field" style="margin:0"><input id="iSearch" placeholder="Buscar producto, especie o ubicación..."></div>
+            </div>
+          </div>
+          <div id="iList"></div>
+        </section>
+
+      </div><!-- /tab-inventario -->
+
     </div>
   </main>
 
@@ -413,7 +499,7 @@
 
   firebase.initializeApp({apiKey:"AIzaSyD3Efa6wbyPAhPoC3gJB5ZqqWuXdYWIsdA",authDomain:"maderak-e4810.firebaseapp.com",databaseURL:"https://maderak-e4810-default-rtdb.firebaseio.com",projectId:"maderak-e4810",storageBucket:"maderak-e4810.firebasestorage.app",messagingSenderId:"600953477273",appId:"1:600953477273:web:89fba6653c741c729e8008"});
   var _db=firebase.database().ref("maderak");
-  var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses"};
+  var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses","maderak_inventory_v1":"inventory","maderak_invcnt_v1":"counters/inventory"};
 
   function rawGet(k){return (k in mem)?mem[k]:null;}
   function rawSet(k,v){mem[k]=v;if(_FM[k])_db.child(_FM[k]).set(v);}
@@ -1012,9 +1098,128 @@
   $("sList").addEventListener("click",function(e){var t=e.target;if(t.dataset.pay){var sp=sales.filter(function(x){return x.id===t.dataset.pay;})[0];if(sp)openPago(sp);}else if(t.dataset.sedit)editSale(t.dataset.sedit);else if(t.dataset.sdel)deleteSale(t.dataset.sdel);});
   $("eList").addEventListener("click",function(e){var t=e.target;if(t.dataset.eedit)editExp(t.dataset.eedit);else if(t.dataset.edel)deleteExp(t.dataset.edel);});
 
+  /* ---------- Inventario ---------- */
+  var IKEY="maderak_inventory_v1", ICNT="maderak_invcnt_v1";
+  function loadInv(){var r=rawGet(IKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function saveInvList(a){rawSet(IKEY,JSON.stringify(a));}
+  function invNext(){var n=parseInt(rawGet(ICNT)||"0",10)||0;n+=1;rawSet(ICNT,String(n));return n;}
+  function invLabel(n){return "INV-"+pad(n);}
+  var inventory=loadInv(), editingInvId=null;
+
+  var iSpeciesEl=$("iSpecies"), iFinishEl=$("iFinish");
+  iSpeciesEl.addEventListener("change",function(){fillFinish(iFinishEl,iSpeciesEl.value,"");});
+
+  function clearInvForm(){
+    editingInvId=null;
+    ["iProduct","iReference","iQty","iMinQty","iLocation","iNotes"].forEach(function(id){$(id).value="";});
+    iSpeciesEl.value="";fillFinish(iFinishEl,"","");$("iUnit").value="m²";
+    $("iFormTitle").textContent="Agregar producto al inventario";
+    $("iSaveBtn").textContent="Guardar en inventario";
+    $("iEditBanner").classList.remove("show");
+  }
+  function readInvForm(){
+    var fo=iFinishEl,opt=fo.options[fo.selectedIndex];
+    return {
+      species:iSpeciesEl.value, finish:fo.value, finishCode:(opt?opt.getAttribute("data-code"):"")||"",
+      product:$("iProduct").value.trim(), reference:$("iReference").value.trim(),
+      qty:parseFloat($("iQty").value)||0, unit:$("iUnit").value,
+      minQty:parseFloat($("iMinQty").value)||0,
+      location:$("iLocation").value.trim(), notes:$("iNotes").value.trim()
+    };
+  }
+  function onSaveInv(){
+    var d=readInvForm();
+    if(!d.product){toast("Indica el nombre del producto.");$("iProduct").focus();return;}
+    if(!d.species){toast("Elige la especie.");iSpeciesEl.focus();return;}
+    if(editingInvId){
+      for(var i=0;i<inventory.length;i++){if(inventory[i].id===editingInvId){d.id=inventory[i].id;d.number=inventory[i].number;d.date=inventory[i].date;d.updatedAt=new Date().toISOString();inventory[i]=d;break;}}
+      toast("Ítem "+invLabel(d.number)+" actualizado.");
+    }else{
+      d.id="i_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+      d.number=invNext();d.date=new Date().toISOString();d.updatedAt=d.date;
+      inventory.unshift(d);toast("Ítem "+invLabel(d.number)+" guardado.");
+    }
+    saveInvList(inventory);clearInvForm();renderInv();
+  }
+  function editInv(id){
+    var item=inventory.filter(function(x){return x.id===id;})[0];if(!item)return;
+    editingInvId=id;
+    iSpeciesEl.value=item.species||"";fillFinish(iFinishEl,item.species||"",item.finish||"");
+    $("iProduct").value=item.product||"";$("iReference").value=item.reference||"";
+    $("iQty").value=item.qty!=null?item.qty:"";$("iUnit").value=item.unit||"m²";
+    $("iMinQty").value=item.minQty!=null?item.minQty:"";
+    $("iLocation").value=item.location||"";$("iNotes").value=item.notes||"";
+    $("iFormTitle").textContent="Editar "+invLabel(item.number);
+    $("iSaveBtn").textContent="Actualizar ítem";
+    $("iEditBanner").classList.add("show");switchTab("inventario");window.scrollTo({top:0,behavior:"smooth"});
+  }
+  function deleteInv(id){
+    var item=inventory.filter(function(x){return x.id===id;})[0];if(!item)return;
+    if(!window.confirm("¿Eliminar \""+item.product+"\" del inventario?"))return;
+    inventory=inventory.filter(function(x){return x.id!==id;});saveInvList(inventory);
+    if(editingInvId===id)clearInvForm();renderInv();toast("Ítem eliminado.");
+  }
+  function invStockClass(item){
+    if((item.qty||0)===0)return "neg";
+    if(item.minQty>0&&(item.qty||0)<item.minQty)return "mid";
+    return "pos";
+  }
+  function invStockIcon(item){
+    if((item.qty||0)===0)return "🚫";
+    if(item.minQty>0&&(item.qty||0)<item.minQty)return "⚠️";
+    return "✓";
+  }
+  function renderInv(){
+    var term=($("iSearch").value||"").toLowerCase().trim();
+    var list=inventory.filter(function(x){
+      if(!term)return true;
+      return ((x.product||"")+" "+(x.species||"")+" "+(x.finish||"")+" "+(x.reference||"")+" "+(x.location||"")).toLowerCase().indexOf(term)!==-1;
+    });
+    $("iCount").textContent=inventory.length;
+    // KPIs
+    var low=0,zero=0;
+    inventory.forEach(function(x){
+      if((x.qty||0)===0)zero++;
+      else if(x.minQty>0&&(x.qty||0)<x.minQty)low++;
+    });
+    $("iKpiTotal").textContent=inventory.length;
+    $("iKpiLow").textContent=low;
+    $("iKpiZero").textContent=zero;
+    if(list.length===0){
+      $("iList").innerHTML='<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Producto</th><th>Especie · Acabado</th><th class="num">Cantidad</th><th>Ubicación</th><th>Actualizado</th><th></th></tr></thead><tbody><tr class="empty-row"><td colspan="6">'+(inventory.length===0?"Aún no hay ítems en el inventario. Agrega el primero arriba.":"Sin resultados.")+'</td></tr></tbody></table></div>';
+      return;
+    }
+    var body=list.map(function(x){
+      var sc=invStockClass(x),si=invStockIcon(x);
+      var qtyDisplay='<span class="estado '+sc+'" style="font-size:13px">'+si+'</span> '+
+        '<b style="font-variant-numeric:tabular-nums">'+(x.qty||0)+'</b> '+esc(x.unit||"")+'</span>';
+      return '<tr>'+
+        '<td><div style="font-weight:600">'+esc(x.product)+'</div>'+
+          (x.reference?'<div class="ref">'+esc(x.reference)+'</div>':'')+
+          '<div class="ref">'+invLabel(x.number)+'</div></td>'+
+        '<td>'+esc(x.species||"—")+(x.finish?' · '+esc(x.finish):'')+'</td>'+
+        '<td class="num">'+qtyDisplay+'</td>'+
+        '<td>'+(x.location?esc(x.location):'<span style="color:var(--muted)">—</span>')+'</td>'+
+        '<td class="num" style="font-size:12px;color:var(--muted)">'+fmtDate(x.updatedAt||x.date)+'</td>'+
+        '<td class="acts">'+
+          '<button class="mini" data-iedit="'+x.id+'">Editar</button>'+
+          '<button class="mini del" data-idel="'+x.id+'">Eliminar</button>'+
+        '</td></tr>';
+    }).join("");
+    $("iList").innerHTML='<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th>Producto</th><th>Especie · Acabado</th><th class="num">Cantidad</th><th>Ubicación</th><th>Actualizado</th><th></th>'+
+      '</tr></thead><tbody>'+body+'</tbody></table></div>';
+  }
+
+  $("iSaveBtn").addEventListener("click",onSaveInv);
+  $("iClearBtn").addEventListener("click",clearInvForm);
+  $("iCancelEdit").addEventListener("click",clearInvForm);
+  $("iSearch").addEventListener("input",renderInv);
+  $("iList").addEventListener("click",function(e){var t=e.target;if(t.dataset.iedit)editInv(t.dataset.iedit);else if(t.dataset.idel)deleteInv(t.dataset.idel);});
+
   /* ---------- Init ---------- */
   if(!(window.jspdf&&window.jspdf.jsPDF)){$("noJsPdf").style.display="block";}
-  loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();renderProd();renderTreasury();
+  loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();renderProd();renderTreasury();renderInv();
 
   /* ---------- Firebase Real-time Listeners ---------- */
   _db.child("quotes").on("value",function(s){var v=s.val();if(v!==null){mem[QKEY]=v;quotes=loadQuotes();render();}});
@@ -1026,6 +1231,8 @@
   _db.child("counters/sales").on("value",function(s){var v=s.val();if(v!==null)mem[SCNT]=String(v);});
   _db.child("counters/expenses").on("value",function(s){var v=s.val();if(v!==null)mem[ECNT]=String(v);});
   _db.child("counters/production").on("value",function(s){var v=s.val();if(v!==null)mem[PCKEY]=String(v);});
+  _db.child("inventory").on("value",function(s){var v=s.val();if(v!==null){mem[IKEY]=v;inventory=loadInv();renderInv();}});
+  _db.child("counters/inventory").on("value",function(s){var v=s.val();if(v!==null)mem[ICNT]=String(v);});
 })();
 </script>
 </body>
