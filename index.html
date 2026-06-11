@@ -71,6 +71,23 @@
   .modal-head h3{font-family:"Fraunces",Georgia,serif;font-size:19px;margin:0;color:var(--bark)}
   .modal-x{border:none;background:transparent;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;padding:0 4px}
   .modal-x:hover{color:var(--danger)}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:var(--bark);padding:10px 12px;font-weight:600;white-space:nowrap}
+  .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .tbl tbody tr:last-child td{border-bottom:none}
+  .tbl tbody tr:nth-child(even){background:var(--field)}
+  .tbl tbody tr:hover{background:rgba(184,115,43,.07)}
+  .tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tbl .center{text-align:center}
+  .tbl .ref{font-size:10.5px;font-weight:700;color:var(--honey-deep);white-space:nowrap}
+  .estado{font-size:17px;font-weight:700;line-height:1}
+  .estado.ok{color:#4F6B3A}
+  .estado.bad{color:var(--danger)}
+  .estado.mid{color:var(--muted)}
+  .tbl .acts{white-space:nowrap;text-align:right}
+  .tbl .acts .mini{padding:5px 9px;font-size:11.5px;margin-left:4px}
+  .empty-row td{padding:34px;text-align:center;color:var(--muted)}
   main{padding:26px 0 60px}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
   .panel-title{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;margin:0 0 4px}
@@ -337,7 +354,7 @@
               <button class="btn btn-primary" id="addVenta" type="button">+ Venta</button>
             </div>
           </div>
-          <div class="qgrid" id="sList"></div>
+          <div id="sList"></div>
         </section>
 
         <section class="panel">
@@ -348,7 +365,7 @@
               <button class="btn btn-primary" id="addGasto" type="button">+ Gasto</button>
             </div>
           </div>
-          <div class="qgrid" id="eList"></div>
+          <div id="eList"></div>
         </section>
       </div><!-- /tab-tesoreria -->
     </div>
@@ -856,50 +873,64 @@
     $("kCobrar").textContent=fmtMoney(k.porCobrar,"COP");
     renderSales();renderExpenses();
   }
+  function saleEstado(s){
+    var paid=Number(s.paid)||0,amt=Number(s.amount)||0;
+    if(amt>0&&paid>=amt)return {sym:"✓",cls:"ok",label:"Pagó la totalidad"};
+    var due=s.payDate?String(s.payDate).slice(0,10):"";
+    if(due&&todayISO()>due)return {sym:"✗",cls:"bad",label:"Venció el plazo sin pagar"};
+    return {sym:"–",cls:"mid",label:"Dentro del plazo"};
+  }
   function renderSales(){
     var term=($("sSearch").value||"").toLowerCase().trim();
     var list=sales.filter(function(s){if(!term)return true;return ((s.client||"")+" "+(s.product||"")).toLowerCase().indexOf(term)!==-1;});
     $("sCount").textContent=sales.length;
-    if(list.length===0){$("sList").innerHTML='<div class="empty"><img src="'+MARK+'" alt=""><p>'+(sales.length===0?"Aún no hay ventas registradas. Usa “+ Venta”.":"Sin resultados.")+'</p></div>';return;}
-    var html="";
-    list.forEach(function(s){
-      var st=saleStatus(s),saldo=Math.max(0,(Number(s.amount)||0)-(Number(s.paid)||0));
-      var label=st==="pagado"?"Pagado":st==="parcial"?"Abono":"Pendiente";
-      html+='<div class="quote-card"><div class="qc-top">'+
-        '<div><p class="qc-client">'+esc(s.client)+'</p>'+
-        '<p class="qc-meta">'+esc(s.product||"—")+' · '+fmtYMD(s.date)+'</p></div>'+
-        '<span class="qc-num">'+salesLabel(s.number)+'</span></div>'+
-        '<div class="qc-total">'+fmtMoney(s.amount,"COP")+'</div>'+
-        '<div class="qc-tags"><span class="badge '+st+'">'+label+'</span>'+
-          (saldo>0?'<span class="tag">Saldo: '+fmtMoney(saldo,"COP")+'</span>':'')+
-          (s.payDate?'<span class="tag">Pago: '+fmtYMD(s.payDate)+'</span>':'')+'</div>'+
-        '<div class="qc-actions">'+
-          (st!=="pagado"?'<button class="mini pdf" data-pay="'+s.id+'">Registrar pago</button>':'')+
-          '<button class="mini" data-sedit="'+s.id+'">Editar</button>'+
-          '<button class="mini del" data-sdel="'+s.id+'">Eliminar</button>'+
-        '</div></div>';
-    });
-    $("sList").innerHTML=html;
+    var body;
+    if(list.length===0){
+      body='<tr class="empty-row"><td colspan="7">'+(sales.length===0?"Aún no hay ventas registradas. Usa “+ Venta”.":"Sin resultados.")+'</td></tr>';
+    }else{
+      body=list.map(function(s){
+        var saldo=Math.max(0,(Number(s.amount)||0)-(Number(s.paid)||0)),e=saleEstado(s);
+        return '<tr>'+
+          '<td><div style="font-weight:600">'+esc(s.client)+'</div><div class="ref">'+salesLabel(s.number)+'</div></td>'+
+          '<td>'+esc(s.product||"—")+'</td>'+
+          '<td class="num">'+fmtYMD(s.date)+'</td>'+
+          '<td class="num">'+fmtMoney(s.amount,"COP")+'</td>'+
+          '<td class="num">'+(saldo>0?fmtMoney(saldo,"COP"):"—")+'</td>'+
+          '<td class="center"><span class="estado '+e.cls+'" title="'+e.label+'">'+e.sym+'</span>'+
+            (s.payDate&&e.cls!=="ok"?'<div class="ref" style="color:var(--muted);font-weight:500">vence '+fmtYMD(s.payDate)+'</div>':'')+'</td>'+
+          '<td class="acts">'+
+            (e.cls!=="ok"?'<button class="mini pdf" data-pay="'+s.id+'">Abono</button>':'')+
+            '<button class="mini" data-sedit="'+s.id+'">Editar</button>'+
+            '<button class="mini del" data-sdel="'+s.id+'">Eliminar</button>'+
+          '</td></tr>';
+      }).join("");
+    }
+    $("sList").innerHTML='<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th>Cliente</th><th>Producto</th><th>Fecha</th><th>Monto</th><th>Saldo</th><th class="center">Estado</th><th></th>'+
+      '</tr></thead><tbody>'+body+'</tbody></table></div>';
   }
   function renderExpenses(){
     var term=($("eSearch").value||"").toLowerCase().trim();
     var list=expenses.filter(function(e){if(!term)return true;return ((e.concept||"")+" "+(e.category||"")).toLowerCase().indexOf(term)!==-1;});
     $("eCount").textContent=expenses.length;
-    if(list.length===0){$("eList").innerHTML='<div class="empty"><img src="'+MARK+'" alt=""><p>'+(expenses.length===0?"Aún no hay gastos registrados. Usa “+ Gasto”.":"Sin resultados.")+'</p></div>';return;}
-    var html="";
-    list.forEach(function(e){
-      html+='<div class="quote-card"><div class="qc-top">'+
-        '<div><p class="qc-client">'+esc(e.concept)+'</p>'+
-        '<p class="qc-meta">'+esc(e.category||"—")+' · '+fmtYMD(e.date)+'</p></div>'+
-        '<span class="qc-num">'+expLabel(e.number)+'</span></div>'+
-        '<div class="qc-total">'+fmtMoney(e.amount,"COP")+'</div>'+
-        (e.notes?'<div class="prod-specs"><div>'+esc(e.notes)+'</div></div>':'')+
-        '<div class="qc-actions">'+
-          '<button class="mini" data-eedit="'+e.id+'">Editar</button>'+
-          '<button class="mini del" data-edel="'+e.id+'">Eliminar</button>'+
-        '</div></div>';
-    });
-    $("eList").innerHTML=html;
+    var body;
+    if(list.length===0){
+      body='<tr class="empty-row"><td colspan="5">'+(expenses.length===0?"Aún no hay gastos registrados. Usa “+ Gasto”.":"Sin resultados.")+'</td></tr>';
+    }else{
+      body=list.map(function(e){
+        return '<tr>'+
+          '<td><div style="font-weight:600">'+esc(e.concept)+'</div><div class="ref">'+expLabel(e.number)+'</div>'+
+            (e.notes?'<div class="ref" style="color:var(--muted);font-weight:500">'+esc(e.notes)+'</div>':'')+'</td>'+
+          '<td>'+esc(e.category||"—")+'</td>'+
+          '<td class="num">'+fmtYMD(e.date)+'</td>'+
+          '<td class="num">'+fmtMoney(e.amount,"COP")+'</td>'+
+          '<td class="acts"><button class="mini" data-eedit="'+e.id+'">Editar</button><button class="mini del" data-edel="'+e.id+'">Eliminar</button></td>'+
+        '</tr>';
+      }).join("");
+    }
+    $("eList").innerHTML='<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th>Concepto</th><th>Categoría</th><th>Fecha</th><th>Monto</th><th></th>'+
+      '</tr></thead><tbody>'+body+'</tbody></table></div>';
   }
 
   /* Modal */
@@ -916,7 +947,7 @@
     '<div class="field"><label>Producto</label><input id="tProduct" list="prodList" value="'+esc(s.product||"")+'" placeholder="Piso, Tiranta…"></div>'+
     '<div class="row2"><div class="field"><label>Monto total (COP)</label><input id="tAmount" type="number" min="0" step="0.01" value="'+(s.amount!=null?s.amount:"")+'" placeholder="0"></div>'+
     '<div class="field"><label>Pagado (COP)</label><input id="tPaid" type="number" min="0" step="0.01" value="'+(s.paid!=null?s.paid:"0")+'" placeholder="0"></div></div>'+
-    '<div class="field"><label>Fecha de pago (opcional)</label><input id="tPayDate" type="date" value="'+(s.payDate||"")+'"></div>'+
+    '<div class="field"><label>Fecha de pago / vencimiento (opcional)</label><input id="tPayDate" type="date" value="'+(s.payDate||"")+'"></div>'+
     '<div class="field"><label>Notas (opcional)</label><textarea id="tNotes" placeholder="...">'+esc(s.notes||"")+'</textarea></div>';
   }
   function gastoForm(e){e=e||{};return ''+
@@ -928,8 +959,7 @@
   }
   function pagoForm(s){var saldo=Math.max(0,(Number(s.amount)||0)-(Number(s.paid)||0));return ''+
     '<p style="margin:0 0 14px;color:var(--muted);font-size:14px">'+esc(s.client)+' · saldo actual <b style="color:var(--bark)">'+fmtMoney(saldo,"COP")+'</b></p>'+
-    '<div class="row2"><div class="field"><label>Monto del pago (COP)</label><input id="payAmount" type="number" min="0" step="0.01" value="'+saldo+'" placeholder="0"></div>'+
-    '<div class="field"><label>Fecha de pago</label><input id="payDate" type="date" value="'+todayISO()+'"></div></div>';
+    '<div class="field"><label>Monto del abono (COP)</label><input id="payAmount" type="number" min="0" step="0.01" value="'+saldo+'" placeholder="0"></div>';
   }
   function openVenta(s){tMode="venta";tEditId=s?s.id:null;refreshClientList();$("tModalBody").innerHTML=ventaForm(s);openModal(s?"Editar venta":"Registrar venta");}
   function openGasto(e){tMode="gasto";tEditId=e?e.id:null;$("tModalBody").innerHTML=gastoForm(e);openModal(e?"Editar gasto":"Registrar gasto");}
@@ -953,9 +983,9 @@
       saveExpList(expenses);
     }else if(tMode==="pago"){
       var pay=parseFloat($("payAmount").value)||0;
-      if(!(pay>0)){toast("Indica el monto del pago.");return;}
-      for(var m=0;m<sales.length;m++){if(sales[m].id===tEditId){var s=sales[m];s.paid=Math.min(Number(s.amount)||0,(Number(s.paid)||0)+pay);s.payDate=$("payDate").value||todayISO();break;}}
-      saveSalesList(sales);toast("Pago registrado.");
+      if(!(pay>0)){toast("Indica el monto del abono.");return;}
+      for(var m=0;m<sales.length;m++){if(sales[m].id===tEditId){var s=sales[m];s.paid=Math.min(Number(s.amount)||0,(Number(s.paid)||0)+pay);break;}}
+      saveSalesList(sales);toast("Abono registrado.");
     }
     closeModal();renderTreasury();
   }
