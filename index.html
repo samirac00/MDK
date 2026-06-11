@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root{
     --paper:#E4D5BF;        /* light brown page */
@@ -406,10 +408,15 @@
   };
   var COMPANY_DEFAULT={advisor:"Felipe Gómez",role:"Área Comercial",phone:"+57 3102556692",email:"hola@maderakw.com",website:"www.maderakw.com",address:"Vía Las Palmas KM 28 · Retiro, Antioquia"};
 
-  /* ---------- Storage ---------- */
+  /* ---------- Storage (Firebase Realtime Database) ---------- */
   var QKEY="maderak_quotes_v3",CKEY="maderak_counter_v1",COKEY="maderak_company_v2",mem={};
-  function rawGet(k){try{var v=window.localStorage.getItem(k);return v===null?(k in mem?mem[k]:null):v;}catch(e){return (k in mem)?mem[k]:null;}}
-  function rawSet(k,v){mem[k]=v;try{window.localStorage.setItem(k,v);}catch(e){}}
+
+  firebase.initializeApp({apiKey:"AIzaSyD3Efa6wbyPAhPoC3gJB5ZqqWuXdYWIsdA",authDomain:"maderak-e4810.firebaseapp.com",databaseURL:"https://maderak-e4810-default-rtdb.firebaseio.com",projectId:"maderak-e4810",storageBucket:"maderak-e4810.firebasestorage.app",messagingSenderId:"600953477273",appId:"1:600953477273:web:89fba6653c741c729e8008"});
+  var _db=firebase.database().ref("maderak");
+  var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses"};
+
+  function rawGet(k){return (k in mem)?mem[k]:null;}
+  function rawSet(k,v){mem[k]=v;if(_FM[k])_db.child(_FM[k]).set(v);}
   function loadQuotes(){var r=rawGet(QKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
   function saveQuotes(a){rawSet(QKEY,JSON.stringify(a));}
   function nextNumber(){var n=parseInt(rawGet(CKEY)||"0",10)||0;n+=1;rawSet(CKEY,String(n));return n;}
@@ -1008,6 +1015,17 @@
   /* ---------- Init ---------- */
   if(!(window.jspdf&&window.jspdf.jsPDF)){$("noJsPdf").style.display="block";}
   loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();renderProd();renderTreasury();
+
+  /* ---------- Firebase Real-time Listeners ---------- */
+  _db.child("quotes").on("value",function(s){var v=s.val();if(v!==null){mem[QKEY]=v;quotes=loadQuotes();render();}});
+  _db.child("counters/quotes").on("value",function(s){var v=s.val();if(v!==null)mem[CKEY]=String(v);});
+  _db.child("company").on("value",function(s){var v=s.val();if(v!==null){mem[COKEY]=v;company=loadCompany();loadCompanyForm();}});
+  _db.child("production").on("value",function(s){var v=s.val();if(v!==null){mem[PKEY]=v;production=loadProd();renderProd();}});
+  _db.child("sales").on("value",function(s){var v=s.val();if(v!==null){mem[SKEY]=v;sales=loadSales();renderTreasury();}});
+  _db.child("expenses").on("value",function(s){var v=s.val();if(v!==null){mem[EKEY]=v;expenses=loadExp();renderTreasury();}});
+  _db.child("counters/sales").on("value",function(s){var v=s.val();if(v!==null)mem[SCNT]=String(v);});
+  _db.child("counters/expenses").on("value",function(s){var v=s.val();if(v!==null)mem[ECNT]=String(v);});
+  _db.child("counters/production").on("value",function(s){var v=s.val();if(v!==null)mem[PCKEY]=String(v);});
 })();
 </script>
 </body>
