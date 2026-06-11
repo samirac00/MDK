@@ -508,12 +508,17 @@
   /* ---------- Storage (Firebase Realtime Database) ---------- */
   var QKEY="maderak_quotes_v3",CKEY="maderak_counter_v1",COKEY="maderak_company_v2",mem={};
 
-  firebase.initializeApp({apiKey:"AIzaSyD3Efa6wbyPAhPoC3gJB5ZqqWuXdYWIsdA",authDomain:"maderak-e4810.firebaseapp.com",databaseURL:"https://maderak-e4810-default-rtdb.firebaseio.com",projectId:"maderak-e4810",storageBucket:"maderak-e4810.firebasestorage.app",messagingSenderId:"600953477273",appId:"1:600953477273:web:89fba6653c741c729e8008"});
-  var _db=firebase.database().ref("maderak");
+  var _db=null;
   var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses","maderak_inventory_v1":"inventory","maderak_invcnt_v1":"counters/inventory","maderak_compras_v1":"compras","maderak_comprascnt_v1":"counters/compras"};
+  try {
+    if(typeof firebase !== "undefined") {
+      if(!firebase.apps.length) firebase.initializeApp({apiKey:"AIzaSyD3Efa6wbyPAhPoC3gJB5ZqqWuXdYWIsdA",authDomain:"maderak-e4810.firebaseapp.com",databaseURL:"https://maderak-e4810-default-rtdb.firebaseio.com",projectId:"maderak-e4810",storageBucket:"maderak-e4810.firebasestorage.app",messagingSenderId:"600953477273",appId:"1:600953477273:web:89fba6653c741c729e8008"});
+      _db=firebase.database().ref("maderak");
+    }
+  } catch(e){ console.warn("Firebase init error:",e); }
 
   function rawGet(k){return (k in mem)?mem[k]:null;}
-  function rawSet(k,v){mem[k]=v;if(_FM[k])_db.child(_FM[k]).set(v);}
+  function rawSet(k,v){mem[k]=v;try{if(_db&&_FM[k])_db.child(_FM[k]).set(v);}catch(e){}}
   function loadQuotes(){var r=rawGet(QKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
   function saveQuotes(a){rawSet(QKEY,JSON.stringify(a));}
   function nextNumber(){var n=parseInt(rawGet(CKEY)||"0",10)||0;n+=1;rawSet(CKEY,String(n));return n;}
@@ -1296,19 +1301,21 @@
   loadCompanyForm();$("items").appendChild(buildItemRow());recompute();render();renderProd();renderTreasury();renderInv();
 
   /* ---------- Firebase Real-time Listeners ---------- */
-  _db.child("quotes").on("value",function(s){var v=s.val();if(v!==null){mem[QKEY]=v;quotes=loadQuotes();render();}});
-  _db.child("counters/quotes").on("value",function(s){var v=s.val();if(v!==null)mem[CKEY]=String(v);});
-  _db.child("company").on("value",function(s){var v=s.val();if(v!==null){mem[COKEY]=v;company=loadCompany();loadCompanyForm();}});
-  _db.child("production").on("value",function(s){var v=s.val();if(v!==null){mem[PKEY]=v;production=loadProd();renderProd();}});
-  _db.child("sales").on("value",function(s){var v=s.val();if(v!==null){mem[SKEY]=v;sales=loadSales();renderTreasury();}});
-  _db.child("expenses").on("value",function(s){var v=s.val();if(v!==null){mem[EKEY]=v;expenses=loadExp();renderTreasury();}});
-  _db.child("counters/sales").on("value",function(s){var v=s.val();if(v!==null)mem[SCNT]=String(v);});
-  _db.child("counters/expenses").on("value",function(s){var v=s.val();if(v!==null)mem[ECNT]=String(v);});
-  _db.child("counters/production").on("value",function(s){var v=s.val();if(v!==null)mem[PCKEY]=String(v);});
-  _db.child("inventory").on("value",function(s){var v=s.val();if(v!==null){mem[IKEY]=v;inventory=loadInv();renderInv();}});
-  _db.child("counters/inventory").on("value",function(s){var v=s.val();if(v!==null)mem[ICNT]=String(v);});
-  _db.child("compras").on("value",function(s){var v=s.val();if(v!==null){mem[CMPKEY]=v;compras=loadCompras();renderTreasury();}});
-  _db.child("counters/compras").on("value",function(s){var v=s.val();if(v!==null)mem[CMPCNT]=String(v);});
+  if(_db){
+    _db.child("quotes").on("value",function(s){var v=s.val();if(v!==null){mem[QKEY]=v;quotes=loadQuotes();render();}});
+    _db.child("counters/quotes").on("value",function(s){var v=s.val();if(v!==null)mem[CKEY]=String(v);});
+    _db.child("company").on("value",function(s){var v=s.val();if(v!==null){mem[COKEY]=v;company=loadCompany();loadCompanyForm();}});
+    _db.child("production").on("value",function(s){var v=s.val();if(v!==null){mem[PKEY]=v;production=loadProd();renderProd();}});
+    _db.child("sales").on("value",function(s){var v=s.val();if(v!==null){mem[SKEY]=v;sales=loadSales();renderTreasury();}});
+    _db.child("expenses").on("value",function(s){var v=s.val();if(v!==null){mem[EKEY]=v;expenses=loadExp();renderTreasury();}});
+    _db.child("counters/sales").on("value",function(s){var v=s.val();if(v!==null)mem[SCNT]=String(v);});
+    _db.child("counters/expenses").on("value",function(s){var v=s.val();if(v!==null)mem[ECNT]=String(v);});
+    _db.child("counters/production").on("value",function(s){var v=s.val();if(v!==null)mem[PCKEY]=String(v);});
+    _db.child("inventory").on("value",function(s){var v=s.val();if(v!==null){mem[IKEY]=v;inventory=loadInv();renderInv();}});
+    _db.child("counters/inventory").on("value",function(s){var v=s.val();if(v!==null)mem[ICNT]=String(v);});
+    _db.child("compras").on("value",function(s){var v=s.val();if(v!==null){mem[CMPKEY]=v;compras=loadCompras();renderTreasury();}});
+    _db.child("counters/compras").on("value",function(s){var v=s.val();if(v!==null)mem[CMPCNT]=String(v);});
+  }
 })();
 </script>
 </body>
