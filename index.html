@@ -111,7 +111,7 @@
 
   /* Product rows */
   .item-card{border:1px solid var(--line);border-radius:11px;padding:14px 12px 8px;margin-bottom:12px;background:var(--field);position:relative}
-  .item-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr .75fr .95fr .6fr;gap:10px}
+  .item-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr .55fr .7fr .9fr .55fr;gap:10px}
   @media (max-width:780px){.item-grid{grid-template-columns:1fr 1fr}}
   @media (max-width:460px){.item-grid{grid-template-columns:1fr}}
   .item-grid .field{margin:0}
@@ -344,6 +344,7 @@
           <div class="kpis">
             <div class="kpi"><div class="l">Ventas del mes</div><div class="v" id="kVentas">$ 0</div></div>
             <div class="kpi"><div class="l">Gastos del mes</div><div class="v" id="kGastos">$ 0</div></div>
+            <div class="kpi"><div class="l">Compras del mes</div><div class="v neg" id="kCompras">$ 0</div></div>
             <div class="kpi"><div class="l">Balance del mes</div><div class="v pos" id="kBalance">$ 0</div></div>
             <div class="kpi"><div class="l">Por cobrar</div><div class="v" id="kCobrar">$ 0</div></div>
           </div>
@@ -369,6 +370,16 @@
             </div>
           </div>
           <div id="eList"></div>
+        </section>
+        <section class="panel">
+          <div class="list-head">
+            <div><h2 class="panel-title" style="margin-bottom:2px">Compras de materia prima</h2><span class="count-pill" id="cmpCount">0</span></div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <div class="search field" style="margin:0"><input id="cmpSearch" placeholder="Buscar proveedor, especie o referencia..."></div>
+              <button class="btn btn-primary" id="addCompra" type="button">+ Compra</button>
+            </div>
+          </div>
+          <div id="cmpList"></div>
         </section>
       </div><!-- /tab-tesoreria -->
 
@@ -499,7 +510,7 @@
 
   firebase.initializeApp({apiKey:"AIzaSyD3Efa6wbyPAhPoC3gJB5ZqqWuXdYWIsdA",authDomain:"maderak-e4810.firebaseapp.com",databaseURL:"https://maderak-e4810-default-rtdb.firebaseio.com",projectId:"maderak-e4810",storageBucket:"maderak-e4810.firebasestorage.app",messagingSenderId:"600953477273",appId:"1:600953477273:web:89fba6653c741c729e8008"});
   var _db=firebase.database().ref("maderak");
-  var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses","maderak_inventory_v1":"inventory","maderak_invcnt_v1":"counters/inventory"};
+  var _FM={"maderak_quotes_v3":"quotes","maderak_counter_v1":"counters/quotes","maderak_company_v2":"company","maderak_production_v1":"production","maderak_prodcounter_v1":"counters/production","maderak_sales_v1":"sales","maderak_expenses_v1":"expenses","maderak_salescnt_v1":"counters/sales","maderak_expcnt_v1":"counters/expenses","maderak_inventory_v1":"inventory","maderak_invcnt_v1":"counters/inventory","maderak_compras_v1":"compras","maderak_comprascnt_v1":"counters/compras"};
 
   function rawGet(k){return (k in mem)?mem[k]:null;}
   function rawSet(k,v){mem[k]=v;if(_FM[k])_db.child(_FM[k]).set(v);}
@@ -560,19 +571,24 @@
         '<div class="field"><label>Producto</label><input class="it-product" list="prodList" placeholder="Piso, Tiranta…"></div>'+
         '<div class="field"><label>Especie</label><select class="it-species"><option value="">Especie…</option><option>Abarco</option><option>Comino</option><option>Roble</option></select></div>'+
         '<div class="field"><label>Acabado</label><select class="it-finish"><option value="">Especie primero…</option></select></div>'+
-        '<div class="field"><label>Cant. (m²)</label><input class="it-qty" type="number" min="0" step="0.01" placeholder="0"></div>'+
-        '<div class="field"><label>Precio (m²)</label><input class="it-price" type="number" min="0" step="0.01" placeholder="0"></div>'+
+        '<div class="field"><label>Unidad</label><select class="it-unit"><option value="m²">m²</option><option value="ml">ml</option><option value="und">und</option></select></div>'+
+        '<div class="field"><label class="it-qty-lbl">Cantidad</label><input class="it-qty" type="number" min="0" step="0.01" placeholder="0"></div>'+
+        '<div class="field"><label class="it-price-lbl">Precio</label><input class="it-price" type="number" min="0" step="0.01" placeholder="0"></div>'+
         '<div class="field"><label>Desc. %</label><input class="it-disc" type="number" min="0" max="100" step="1" placeholder="0"></div>'+
       '</div>'+
       '<div class="line-note"></div>';
-    var species=card.querySelector(".it-species"),finish=card.querySelector(".it-finish");
+    var species=card.querySelector(".it-species"),finish=card.querySelector(".it-finish"),unitSel=card.querySelector(".it-unit");
     card.querySelector(".it-product").value=item.product||"";
     species.value=item.species||"";
     fillFinish(finish,item.species||"",item.finish||"");
+    unitSel.value=item.unit||"m²";
     card.querySelector(".it-qty").value=item.qty||"";
     card.querySelector(".it-price").value=item.price||"";
     card.querySelector(".it-disc").value=(item.disc!=null?item.disc:"");
     updateLineNote(card);
+    function updateUnitLabels(){var u=unitSel.value;card.querySelector(".it-qty-lbl").textContent="Cant. ("+u+")";card.querySelector(".it-price-lbl").textContent="Precio / "+u;}
+    updateUnitLabels();
+    unitSel.addEventListener("change",function(){updateUnitLabels();recompute();});
     species.addEventListener("change",function(){fillFinish(finish,species.value,"");updateLineNote(card);recompute();});
     finish.addEventListener("change",recompute);
     ["it-qty","it-price","it-disc"].forEach(function(c){card.querySelector("."+c).addEventListener("input",recompute);});
@@ -589,6 +605,7 @@
         species:card.querySelector(".it-species").value,
         finish:fo.value,
         finishCode:(opt?opt.getAttribute("data-code"):"")||"",
+        unit:card.querySelector(".it-unit").value||"m²",
         qty:parseFloat(card.querySelector(".it-qty").value)||0,
         price:parseFloat(card.querySelector(".it-price").value)||0,
         disc:parseFloat(card.querySelector(".it-disc").value)||0
@@ -937,34 +954,41 @@
 
   /* ---------- Tesorería ---------- */
   var SKEY="maderak_sales_v1",EKEY="maderak_expenses_v1",SCNT="maderak_salescnt_v1",ECNT="maderak_expcnt_v1";
+  var CMPKEY="maderak_compras_v1",CMPCNT="maderak_comprascnt_v1";
   function loadSales(){var r=rawGet(SKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
   function saveSalesList(a){rawSet(SKEY,JSON.stringify(a));}
   function loadExp(){var r=rawGet(EKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
   function saveExpList(a){rawSet(EKEY,JSON.stringify(a));}
+  function loadCompras(){var r=rawGet(CMPKEY);if(!r)return[];try{var a=JSON.parse(r);return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function saveComprasList(a){rawSet(CMPKEY,JSON.stringify(a));}
   function salesNext(){var n=parseInt(rawGet(SCNT)||"0",10)||0;n+=1;rawSet(SCNT,String(n));return n;}
   function expNext(){var n=parseInt(rawGet(ECNT)||"0",10)||0;n+=1;rawSet(ECNT,String(n));return n;}
+  function cmpNext(){var n=parseInt(rawGet(CMPCNT)||"0",10)||0;n+=1;rawSet(CMPCNT,String(n));return n;}
   function salesLabel(n){return "VTA-"+pad(n);}
   function expLabel(n){return "GST-"+pad(n);}
-  var sales=loadSales(),expenses=loadExp();
+  function cmpLabel(n){return "CMP-"+pad(n);}
+  var sales=loadSales(),expenses=loadExp(),compras=loadCompras();
   var MONTHS_ES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   function todayISO(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
   function fmtYMD(iso){if(!iso)return "—";var p=String(iso).slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:String(iso);}
   function curYM(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2);}
   function saleStatus(s){var paid=Number(s.paid)||0,amt=Number(s.amount)||0;if(amt>0&&paid>=amt)return "pagado";if(paid>0)return "parcial";return "pendiente";}
   function computeTreasury(){
-    var ym=curYM(),vm=0,gm=0,pc=0;
+    var ym=curYM(),vm=0,gm=0,pc=0,cm=0;
     sales.forEach(function(s){if(String(s.date).slice(0,7)===ym)vm+=Number(s.amount)||0;pc+=Math.max(0,(Number(s.amount)||0)-(Number(s.paid)||0));});
     expenses.forEach(function(e){if(String(e.date).slice(0,7)===ym)gm+=Number(e.amount)||0;});
-    return {ventasMes:vm,gastosMes:gm,balance:vm-gm,porCobrar:pc};
+    compras.forEach(function(c){if(String(c.date).slice(0,7)===ym)cm+=Number(c.amount)||0;});
+    return {ventasMes:vm,gastosMes:gm,comprasMes:cm,balance:vm-gm-cm,porCobrar:pc};
   }
   function renderTreasury(){
     var k=computeTreasury(),d=new Date();
     $("tMonthLabel").textContent=MONTHS_ES[d.getMonth()]+" "+d.getFullYear();
     $("kVentas").textContent=fmtMoney(k.ventasMes,"COP");
     $("kGastos").textContent=fmtMoney(k.gastosMes,"COP");
+    $("kCompras").textContent=fmtMoney(k.comprasMes,"COP");
     var bal=$("kBalance");bal.textContent=fmtMoney(k.balance,"COP");bal.className="v "+(k.balance>=0?"pos":"neg");
     $("kCobrar").textContent=fmtMoney(k.porCobrar,"COP");
-    renderSales();renderExpenses();
+    renderSales();renderExpenses();renderCompras();
   }
   function saleEstado(s){
     var paid=Number(s.paid)||0,amt=Number(s.amount)||0;
@@ -1079,6 +1103,14 @@
       if(!(pay>0)){toast("Indica el monto del abono.");return;}
       for(var m=0;m<sales.length;m++){if(sales[m].id===tEditId){var s=sales[m];s.paid=Math.min(Number(s.amount)||0,(Number(s.paid)||0)+pay);break;}}
       saveSalesList(sales);toast("Abono registrado.");
+    }else if(tMode==="compra"){
+      var supplier=$("cSupplier").value.trim(),camount=parseFloat($("cAmount").value)||0;
+      if(!supplier){toast("Indica el proveedor.");return;}
+      if(!(camount>0)){toast("Indica el monto.");return;}
+      var crec={date:$("cDate").value||todayISO(),supplier:supplier,species:$("cSpecies").value,product:$("cProduct").value.trim(),qty:parseFloat($("cQty").value)||0,unit:$("cUnit").value,amount:camount,notes:$("cNotes").value.trim()};
+      if(tEditId){for(var ci=0;ci<compras.length;ci++){if(compras[ci].id===tEditId){crec.id=compras[ci].id;crec.number=compras[ci].number;compras[ci]=crec;break;}}toast("Compra actualizada.");}
+      else{crec.id="c_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);crec.number=cmpNext();compras.unshift(crec);toast("Compra registrada.");}
+      saveComprasList(compras);
     }
     closeModal();renderTreasury();
   }
@@ -1087,8 +1119,50 @@
   function editExp(id){var e=expenses.filter(function(x){return x.id===id;})[0];if(e)openGasto(e);}
   function deleteExp(id){var e=expenses.filter(function(x){return x.id===id;})[0];if(!e)return;if(!window.confirm("¿Eliminar el gasto \""+e.concept+"\"?"))return;expenses=expenses.filter(function(x){return x.id!==id;});saveExpList(expenses);renderTreasury();toast("Gasto eliminado.");}
 
+  /* --- Compras --- */
+  function compraForm(c){c=c||{};return ''+
+    '<div class="row2"><div class="field"><label>Fecha</label><input id="cDate" type="date" value="'+(c.date||todayISO())+'"></div>'+
+    '<div class="field"><label>Proveedor</label><input id="cSupplier" value="'+esc(c.supplier||"")+'" placeholder="Nombre del proveedor"></div></div>'+
+    '<div class="row2"><div class="field"><label>Especie de madera</label><select id="cSpecies"><option value="">Especie…</option><option>Abarco</option><option>Comino</option><option>Roble</option></select></div>'+
+    '<div class="field"><label>Producto / referencia</label><input id="cProduct" list="prodList" value="'+esc(c.product||"")+'" placeholder="Tiranta, tabla, rollizo…"></div></div>'+
+    '<div class="row3"><div class="field"><label>Cantidad</label><input id="cQty" type="number" min="0" step="0.01" value="'+(c.qty!=null?c.qty:"")+'" placeholder="0"></div>'+
+    '<div class="field"><label>Unidad</label><select id="cUnit"><option value="m³">m³</option><option value="m²">m²</option><option value="ml">ml</option><option value="und">und</option><option value="kg">kg</option><option value="tablas">tablas</option></select></div>'+
+    '<div class="field"><label>Monto total (COP)</label><input id="cAmount" type="number" min="0" step="0.01" value="'+(c.amount!=null?c.amount:"")+'" placeholder="0"></div></div>'+
+    '<div class="field"><label>Notas (opcional)</label><textarea id="cNotes" placeholder="Condición de la madera, humedad, observaciones…">'+esc(c.notes||"")+'</textarea></div>';
+  }
+  function openCompra(c){tMode="compra";tEditId=c?c.id:null;$("tModalBody").innerHTML=compraForm(c);if(c&&c.species)$("cSpecies").value=c.species;if(c&&c.unit)$("cUnit").value=c.unit;openModal(c?"Editar compra":"Registrar compra de materia prima");}
+  function renderCompras(){
+    var term=($("cmpSearch").value||"").toLowerCase().trim();
+    var list=compras.filter(function(c){if(!term)return true;return((c.supplier||"")+" "+(c.species||"")+" "+(c.product||"")).toLowerCase().indexOf(term)!==-1;});
+    $("cmpCount").textContent=compras.length;
+    var body;
+    if(list.length===0){
+      body='<tr class="empty-row"><td colspan="6">'+(compras.length===0?"Aún no hay compras registradas. Usa "+ Compra".":"Sin resultados.")+'</td></tr>';
+    }else{
+      body=list.map(function(c){
+        return '<tr>'+
+          '<td><div style="font-weight:600">'+esc(c.supplier||"—")+'</div><div class="ref">'+cmpLabel(c.number)+'</div></td>'+
+          '<td>'+esc(c.species||"—")+'</td>'+
+          '<td>'+esc(c.product||"—")+'</td>'+
+          '<td class="num">'+(c.qty!=null?c.qty+" "+esc(c.unit||""):"—")+'</td>'+
+          '<td class="num">'+fmtMoney(c.amount,"COP")+'</td>'+
+          '<td class="num">'+fmtYMD(c.date)+'</td>'+
+          '<td class="acts"><button class="mini" data-cmpedit="'+c.id+'">Editar</button><button class="mini del" data-cmpdel="'+c.id+'">Eliminar</button></td>'+
+        '</tr>';
+      }).join("");
+    }
+    $("cmpList").innerHTML='<div class="tbl-wrap"><table class="tbl"><thead><tr>'+
+      '<th>Proveedor</th><th>Especie</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Monto</th><th class="num">Fecha</th><th></th>'+
+      '</tr></thead><tbody>'+body+'</tbody></table></div>';
+  }
+  function editCompra(id){var c=compras.filter(function(x){return x.id===id;})[0];if(c)openCompra(c);}
+  function deleteCompra(id){var c=compras.filter(function(x){return x.id===id;})[0];if(!c)return;if(!window.confirm("¿Eliminar la compra a "+esc(c.supplier||"este proveedor")+"?"))return;compras=compras.filter(function(x){return x.id!==id;});saveComprasList(compras);renderTreasury();toast("Compra eliminada.");}
+
   $("addVenta").addEventListener("click",function(){openVenta(null);});
   $("addGasto").addEventListener("click",function(){openGasto(null);});
+  $("addCompra").addEventListener("click",function(){openCompra(null);});
+  $("cmpSearch").addEventListener("input",renderCompras);
+  $("cmpList").addEventListener("click",function(e){var t=e.target;if(t.dataset.cmpedit)editCompra(t.dataset.cmpedit);else if(t.dataset.cmpdel)deleteCompra(t.dataset.cmpdel);});
   $("tModalClose").addEventListener("click",closeModal);
   $("tModalCancel").addEventListener("click",closeModal);
   $("tModalSave").addEventListener("click",saveModal);
@@ -1233,6 +1307,8 @@
   _db.child("counters/production").on("value",function(s){var v=s.val();if(v!==null)mem[PCKEY]=String(v);});
   _db.child("inventory").on("value",function(s){var v=s.val();if(v!==null){mem[IKEY]=v;inventory=loadInv();renderInv();}});
   _db.child("counters/inventory").on("value",function(s){var v=s.val();if(v!==null)mem[ICNT]=String(v);});
+  _db.child("compras").on("value",function(s){var v=s.val();if(v!==null){mem[CMPKEY]=v;compras=loadCompras();renderTreasury();}});
+  _db.child("counters/compras").on("value",function(s){var v=s.val();if(v!==null)mem[CMPCNT]=String(v);});
 })();
 </script>
 </body>
