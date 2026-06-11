@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"/Users/SAMRACE/Documents/CODIGO MADERAK\" status)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git fetch *)",
+      "Bash(gh auth *)",
+      "Bash(git -C \"/Users/SAMRACE/Documents/CODIGO MADERAK\" remote set-url origin git@github.com:samirac00/MDK.git)",
+      "Bash(git -C \"/Users/SAMRACE/Documents/CODIGO MADERAK\" fetch origin)",
+      "Bash(ssh-keygen -F github.com)",
+      "Read(//Users/SAMRACE/**)"
+    ]
+  }
+}
