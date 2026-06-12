@@ -7,6 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script>
+window.onerror=function(msg,src,line,col,err){
+  var d=document.getElementById('_errbanner');
+  if(!d){d=document.createElement('div');d.id='_errbanner';d.style.cssText='position:fixed;top:0;left:0;right:0;background:#c0392b;color:#fff;padding:12px 16px;font:bold 13px monospace;z-index:99999;white-space:pre-wrap;';document.body&&document.body.prepend(d);}
+  d.textContent='JS ERROR → '+msg+'\nLínea: '+line+' Col: '+col+'\nArchivo: '+src;
+  return false;
+};
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
